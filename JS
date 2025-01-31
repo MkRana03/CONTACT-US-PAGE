@@ -1,0 +1,78 @@
+
+document.getElementById('form').addEventListener('submit', function(event) {
+    event.preventDefault(); 
+    
+    const name = document.querySelector('input[name="name"]').value;
+    const email = document.querySelector('input[name="email"]').value;
+    const message = document.querySelector('textarea[name="message"]').value;
+
+    if (name.trim() === "" || email.trim() === "" || message.trim() === "") {
+        displayResponseMessage("Please fill in all fields.", "error");
+    } else if (!validateEmail(email)) {
+        displayResponseMessage("Please enter a valid email address.", "error");
+    } else if (message.length < 10) {
+        displayResponseMessage("Your message is too short. Please provide more details.", "error");
+    } else if (message.length > 500) {
+        displayResponseMessage("Your message is too long. Please shorten it to under 500 characters.", "error");
+    } else {
+     
+        showLoadingState(true);
+        setTimeout(() => {
+         
+            displayResponseMessage("Thank you! Your message has been sent.", "success");
+
+            document.getElementById('form').reset();
+
+            updateCharacterCount();
+
+            showLoadingState(false);
+        }, 2000); 
+    }
+});
+
+function displayResponseMessage(message, type) {
+    const responseElement = document.getElementById('response-message');
+    responseElement.textContent = message;
+    
+    if (type === "success") {
+        responseElement.style.color = "#28a745"; // Green for success
+        responseElement.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`; // Success icon
+    } else {
+        responseElement.style.color = "#dc3545"; // Red for error
+        responseElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`; // Error icon
+    }
+}
+
+function validateEmail(email) {
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return emailRegex.test(email);
+}
+
+function showLoadingState(isLoading) {
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const formButton = document.querySelector('.contact-form button');
+
+    if (isLoading) {
+        loadingSpinner.style.display = 'inline-block';
+        formButton.disabled = true; 
+    } else {
+        loadingSpinner.style.display = 'none';
+        formButton.disabled = false; 
+    }
+}
+document.querySelector('textarea[name="message"]').addEventListener('input', updateCharacterCount);
+
+function updateCharacterCount() {
+    const messageLength = document.querySelector('textarea[name="message"]').value.length;
+    const maxLength = 500;
+    const charCountElement = document.getElementById('char-count');
+    
+    charCountElement.textContent = `${messageLength} / ${maxLength} characters`;
+
+    if (messageLength > maxLength) {
+        charCountElement.style.color = "#dc3545"; 
+    } else {
+        charCountElement.style.color = "#000"; 
+    }
+}
+updateCharacterCount();
